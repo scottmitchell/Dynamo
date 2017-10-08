@@ -52,7 +52,7 @@ namespace Dynamo.Graph.Workspaces
             NodeModel node = null;
 
             var obj = JObject.Load(reader);
-            //NodeGraph.LoadNodeFromJson(obj, SaveContext.File, null, null);
+
             var type = Type.GetType(obj["$type"].Value<string>());
 
             // If the id is not a guid, makes a guid based on the id of the node
@@ -271,7 +271,7 @@ namespace Dynamo.Graph.Workspaces
             nmc.ElementResolver = elementResolver;
 
             // nodes
-            var nodes = NodeGraph.LoadNodesFromJson(obj, this.factory, null);
+            var nodes = NodeGraph.LoadNodesFromJson(obj, this.factory, nmc.ElementResolver);
             //var nodes = obj["Nodes"].ToObject<IEnumerable<NodeModel>>(serializer);
 
             // nodes
