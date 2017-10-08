@@ -377,6 +377,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
         /// <returns></returns>
         internal NodeModel CreateNodeFromJson(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
         {
+            string typeName = Nodes.Utilities.PreprocessTypeName(jNode["$type"].ToString().Split(',')[0]);
 
             Type type;
             NodeModel node;
