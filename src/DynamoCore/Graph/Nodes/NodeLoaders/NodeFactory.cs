@@ -371,7 +371,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
         ///     Creates and Loads a new NodeModel from its Serialized form, using the node loaders
         ///     registered in this factory. If loading fails, a Dummy Node is produced.
         /// </summary>
-        /// <param name="elNode"></param>
+        /// <param name="jNode"></param>
         /// <param name="context"></param>
         /// <param name="resolver"></param>
         /// <returns></returns>
@@ -387,8 +387,8 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
                 return node;
             }
 
-            node = new DummyNode(1, 1, typeName, jNode, "", DummyNode.Nature.Deprecated);
-            return node;
+            // node = new DummyNode(1, 1, typeName, jNode, "", DummyNode.Nature.Deprecated);
+            return null;
         }
 
         /// <summary>

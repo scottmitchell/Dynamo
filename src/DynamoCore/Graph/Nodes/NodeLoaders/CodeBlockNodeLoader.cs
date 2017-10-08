@@ -26,7 +26,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
 
         public CodeBlockNodeModel CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
         {
-            var guid = Dynamo.Utilities.GuidUtility.tryParseOrCreateGuid(jNode["Id"].Value<string>());
+            var guid = Dynamo.Utilities.GuidUtility.tryParseOrCreateGuid(jNode["Id"].ToString());
             var code = jNode["Code"].ToString();
             return new CodeBlockNodeModel(code, guid, 0.0, 0.0, libraryServices, resolver);
         }
