@@ -7,7 +7,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
     /// <summary>
     ///     Xml Loader for CodeBlock nodes.
     /// </summary>
-    internal class CodeBlockNodeLoader : INodeLoader<CodeBlockNodeModel>,INodeLoaderAlternative<CodeBlockNodeModel>, INodeFactory<CodeBlockNodeModel>
+    internal class CodeBlockNodeLoader : INodeLoader<CodeBlockNodeModel>, INodeFactory<CodeBlockNodeModel>
     {
         private readonly LibraryServices libraryServices;
 
@@ -16,7 +16,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             libraryServices = manager;
         }
 
-        public CodeBlockNodeModel CreateNodeFromXml(XmlElement elNode, SaveContext context, ElementResolver resolver)
+        public CodeBlockNodeModel CreateNodeFromFile(XmlElement elNode, SaveContext context, ElementResolver resolver)
         {
             var node = CreateNode();
             node.ElementResolver = resolver;
@@ -24,7 +24,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             return node;
         }
 
-        public CodeBlockNodeModel CreateNodeFromJson(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
+        public CodeBlockNodeModel CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
         {
             var guid = Dynamo.Utilities.GuidUtility.tryParseOrCreateGuid(jNode["Id"].Value<string>());
             var code = jNode["Code"].ToString();

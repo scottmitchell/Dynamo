@@ -23,7 +23,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             this.libraryServices = libraryServices;
         }
 
-        public NodeModel CreateNodeFromXml(XmlElement nodeElement, SaveContext context, ElementResolver resolver)
+        public NodeModel CreateNodeFromFile(XmlElement nodeElement, SaveContext context, ElementResolver resolver)
         {
             string assembly = "";
             string function;
@@ -157,7 +157,12 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
 
             return result;
         }
-        
+
+        public NodeModel CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
+        {
+            throw new NotImplementedException();
+        }
+
         private static int DetermineFunctionInputCount(XmlElement element)
         {
             int additionalPort = 0;

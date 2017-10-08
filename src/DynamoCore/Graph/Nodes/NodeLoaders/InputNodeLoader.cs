@@ -9,12 +9,17 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
         {
         }
 
-        public Symbol CreateNodeFromXml(XmlElement elNode, SaveContext context, ProtoCore.Namespace.ElementResolver resolver)
+        public Symbol CreateNodeFromFile(XmlElement elNode, SaveContext context, ProtoCore.Namespace.ElementResolver resolver)
         {
             var node = CreateNode();
             node.ElementResolver = resolver;
             node.Deserialize(elNode, context);
             return node;
+        }
+
+        public Symbol CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ProtoCore.Namespace.ElementResolver resolver)
+        {
+            throw new System.NotImplementedException();
         }
 
         public Symbol CreateNode()

@@ -22,7 +22,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             this.isTestMode = isTestMode;
         }
         
-        public Function CreateNodeFromXml(XmlElement nodeElement, SaveContext context, ElementResolver resolver)
+        public Function CreateNodeFromFile(XmlElement nodeElement, SaveContext context, ElementResolver resolver)
         {
             XmlNode idNode =
                 nodeElement.ChildNodes.Cast<XmlNode>()
@@ -42,6 +42,11 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             var node = customNodeManager.CreateCustomNodeInstance(funcId, name, isTestMode);
             node.Deserialize(nodeElement, context);
             return node;
+        }
+
+        public Function CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
+        {
+            throw new NotImplementedException();
         }
 
         public Function CreateProxyNode(Guid funcId, string name, Guid nodeId, int inputNum, int outputNum)

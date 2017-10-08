@@ -21,19 +21,16 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
         /// <param name="context">Serialization context</param>
         /// <param name="resolver">Element resolver for resolve namespace conflict</param>
         /// <returns></returns>
-        T CreateNodeFromXml(XmlElement elNode, SaveContext context, ElementResolver resolver = null);
-    }
+        T CreateNodeFromFile(XmlElement elNode, SaveContext context, ElementResolver resolver = null);
 
-    public interface INodeLoaderAlternative<out T> where T :NodeModel
-    {
         /// <summary>
         ///     Create a new NodeModel from its serialized form.
         /// </summary>
-        /// <param name="elNode">Serialized NodeModel</param>
+        /// <param name="jNode">Serialized NodeModel</param>
         /// <param name="context">Serialization context</param>
         /// <param name="resolver">Element resolver for resolve namespace conflict</param>
         /// <returns></returns>
-        T CreateNodeFromJson(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver = null);
+        T CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver = null);
     }
 
     /// <summary>
@@ -216,12 +213,18 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
                 constructor = t.GetDefaultConstructor<NodeModel>();
             }
 
-            public NodeModel CreateNodeFromXml(XmlElement elNode, SaveContext context, ElementResolver resolver)
+            public NodeModel CreateNodeFromFile(XmlElement elNode, SaveContext context, ElementResolver resolver)
             {
                 var node = CreateNode();
                 node.Deserialize(elNode, context);
                 return node;
             }
+
+            public NodeModel CreateNodeFromFile(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
+            {
+                throw new NotImplementedException();
+            }
+
 
             public NodeModel CreateNode()
             {
@@ -230,16 +233,6 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
         }
 
         private bool GetNodeSourceFromType(Type type, out INodeLoader<NodeModel> data)
-        {
-            if (GetNodeSourceFromTypeHelper(type, out data))
-                return true; // Found among built-in types, return it.
-
-            Log(string.Format("Could not load node of type: {0}", type.FullName));
-
-            return false;
-        }
-
-        private bool GetNodeSourceFromType(Type type, out INodeLoaderAlternative<NodeModel> data)
         {
             if (GetNodeSourceFromTypeHelper(type, out data))
                 return true; // Found among built-in types, return it.
@@ -266,23 +259,6 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             }
         }
 
-        private bool GetNodeSourceFromTypeHelper(Type type, out INodeLoaderAlternative<NodeModel> data)
-        {
-            while (true)
-            {
-                if (type == null || type == typeof(NodeModel))
-                {
-                    data = null;
-                    return false;
-                }
-
-                if (nodeLoaders.TryGetValue(type, out data))
-                    return true; // Found among built-in types, return it.
-
-                type = type.BaseType;
-            }
-        }
-
         private bool LoadNodeModelInstanceByType(Type type, XmlElement elNode, SaveContext context, ElementResolver resolver, out NodeModel node)
         {
             INodeLoader<NodeModel> data;
@@ -292,20 +268,20 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
                 return false;
             }
 
-            node = data.CreateNodeFromXml(elNode, context, resolver);
+            node = data.CreateNodeFromFile(elNode, context, resolver);
             return true;
         }
 
         private bool LoadNodeModelInstanceByType(Type type, Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver, out NodeModel node)
         {
-            INodeLoaderAlternative<NodeModel> data;
+            INodeLoader<NodeModel> data;
             if (!GetNodeSourceFromType(type, out data))
             {
                 node = null;
                 return false;
             }
 
-            node = data.CreateNodeFromJson(jNode, context, resolver);
+            node = data.CreateNodeFromFile(jNode, context, resolver);
             return true;
         }
 
