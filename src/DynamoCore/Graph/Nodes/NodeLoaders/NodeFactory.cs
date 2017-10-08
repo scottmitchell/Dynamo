@@ -24,6 +24,18 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
         T CreateNodeFromXml(XmlElement elNode, SaveContext context, ElementResolver resolver = null);
     }
 
+    public interface INodeLoaderAlternative<out T> where T :NodeModel
+    {
+        /// <summary>
+        ///     Create a new NodeModel from its serialized form.
+        /// </summary>
+        /// <param name="elNode">Serialized NodeModel</param>
+        /// <param name="context">Serialization context</param>
+        /// <param name="resolver">Element resolver for resolve namespace conflict</param>
+        /// <returns></returns>
+        T CreateNodeFromJson(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver = null);
+    }
+
     /// <summary>
     ///     An object which can create a new NodeModel.
     /// </summary>
@@ -227,7 +239,34 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             return false;
         }
 
+        private bool GetNodeSourceFromType(Type type, out INodeLoaderAlternative<NodeModel> data)
+        {
+            if (GetNodeSourceFromTypeHelper(type, out data))
+                return true; // Found among built-in types, return it.
+
+            Log(string.Format("Could not load node of type: {0}", type.FullName));
+
+            return false;
+        }
+
         private bool GetNodeSourceFromTypeHelper(Type type, out INodeLoader<NodeModel> data)
+        {
+            while (true)
+            {
+                if (type == null || type == typeof(NodeModel))
+                {
+                    data = null;
+                    return false;
+                }
+
+                if (nodeLoaders.TryGetValue(type, out data))
+                    return true; // Found among built-in types, return it.
+
+                type = type.BaseType;
+            }
+        }
+
+        private bool GetNodeSourceFromTypeHelper(Type type, out INodeLoaderAlternative<NodeModel> data)
         {
             while (true)
             {
@@ -254,6 +293,19 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             }
 
             node = data.CreateNodeFromXml(elNode, context, resolver);
+            return true;
+        }
+
+        private bool LoadNodeModelInstanceByType(Type type, Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver, out NodeModel node)
+        {
+            INodeLoaderAlternative<NodeModel> data;
+            if (!GetNodeSourceFromType(type, out data))
+            {
+                node = null;
+                return false;
+            }
+
+            node = data.CreateNodeFromJson(jNode, context, resolver);
             return true;
         }
 
@@ -336,6 +388,30 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             }
 
             node = new DummyNode(1, 1, typeName, elNode, "", DummyNode.Nature.Deprecated);
+            return node;
+        }
+
+        /// <summary>
+        ///     Creates and Loads a new NodeModel from its Serialized form, using the node loaders
+        ///     registered in this factory. If loading fails, a Dummy Node is produced.
+        /// </summary>
+        /// <param name="elNode"></param>
+        /// <param name="context"></param>
+        /// <param name="resolver"></param>
+        /// <returns></returns>
+        internal NodeModel CreateNodeFromJson(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
+        {
+            string typeName = Nodes.Utilities.PreprocessTypeName(jNode["NodeType"].ToString());
+
+            Type type;
+            NodeModel node;
+            if (ResolveType(typeName, out type)
+                && LoadNodeModelInstanceByType(type, jNode, context, resolver, out node))
+            {
+                return node;
+            }
+
+            node = new DummyNode(1, 1, typeName, jNode, "", DummyNode.Nature.Deprecated);
             return node;
         }
 

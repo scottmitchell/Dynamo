@@ -7,7 +7,7 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
     /// <summary>
     ///     Xml Loader for CodeBlock nodes.
     /// </summary>
-    internal class CodeBlockNodeLoader : INodeLoader<CodeBlockNodeModel>, INodeFactory<CodeBlockNodeModel>
+    internal class CodeBlockNodeLoader : INodeLoader<CodeBlockNodeModel>,INodeLoaderAlternative<CodeBlockNodeModel>, INodeFactory<CodeBlockNodeModel>
     {
         private readonly LibraryServices libraryServices;
 
@@ -22,6 +22,13 @@ namespace Dynamo.Graph.Nodes.NodeLoaders
             node.ElementResolver = resolver;
             node.Deserialize(elNode, context);
             return node;
+        }
+
+        public CodeBlockNodeModel CreateNodeFromJson(Newtonsoft.Json.Linq.JObject jNode, SaveContext context, ElementResolver resolver)
+        {
+            var guid = Dynamo.Utilities.GuidUtility.tryParseOrCreateGuid(jNode["Id"].Value<string>());
+            var code = jNode["Code"].ToString();
+            return new CodeBlockNodeModel(code, guid, 0.0, 0.0, libraryServices, resolver);
         }
 
         public CodeBlockNodeModel CreateNode()

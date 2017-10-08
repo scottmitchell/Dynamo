@@ -61,6 +61,27 @@ namespace Dynamo.Graph
                    select LoadNodeFromXml(elNode, SaveContext.File, nodeFactory, resolver);
         }
 
+
+        public static IEnumerable<NodeModel> LoadNodesFromJson(Newtonsoft.Json.Linq.JObject jobject, NodeFactory nodeFactory, ElementResolver resolver)
+        {
+            return from Newtonsoft.Json.Linq.JObject jNode in jobject["Nodes"]
+                   select LoadNodeFromJson(jNode, SaveContext.File, nodeFactory, resolver);
+        }
+
+        /// <summary>
+        ///     Creates and initializes a NodeModel from its Xml representation.
+        /// </summary>
+        /// <param name="elNode">XmlElement for a NodeModel.</param>
+        /// <param name="context">The serialization context for initialization.</param>
+        /// <param name="nodeFactory">A NodeFactory, to be used to create the node.</param>
+        /// <param name="resolver"></param>
+        /// <returns></returns>
+        public static NodeModel LoadNodeFromJson(
+            Newtonsoft.Json.Linq.JObject jNode, SaveContext context, NodeFactory nodeFactory, ElementResolver resolver)
+        {
+            return nodeFactory.CreateNodeFromJson(jNode, context, resolver);
+        }
+
         /// <summary>
         ///     Creates and initializes a NodeModel from its Xml representation.
         /// </summary>
