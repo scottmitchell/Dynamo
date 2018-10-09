@@ -23,6 +23,11 @@ namespace Dynamo.LibraryUI.Handlers
         public string itemType { get; set; }
         public string description { get; set; }
         public string keywords { get; set; }
+        public string inputs { get; set; }
+        public string inputTypes { get; set; }
+        public string outputs { get; set; }
+        public string smallIcon { get; set; }
+        public string largeIcon { get; set; }
     }
 
     class LoadedTypeData<T> where T : LoadedTypeItem
@@ -105,6 +110,21 @@ namespace Dynamo.LibraryUI.Handlers
         /// <returns></returns>
         internal T CreateLoadedTypeItem<T>(NodeSearchElement element) where T: LoadedTypeItem, new()
         {
+
+            var assemblyName = Path.GetFileNameWithoutExtension(element.Assembly);
+            const string resourcesPath = @"src\Resources\";
+
+            // Get icon paths.
+            string pathToSmallIcon = Path.Combine(
+                resourcesPath,
+                assemblyName,
+                "SmallIcons", element.IconName + ".Small.png");
+
+            string pathToLargeIcon = Path.Combine(
+               resourcesPath,
+               assemblyName,
+               "LargeIcons", element.IconName + ".Large.png");
+
             var item = new T()
             {
                 fullyQualifiedName = GetFullyQualifiedName(element),
@@ -115,7 +135,18 @@ namespace Dynamo.LibraryUI.Handlers
                 description = element.Description,
                 keywords = element.SearchKeywords.Any()
                         ? element.SearchKeywords.Where(s => !string.IsNullOrEmpty(s)).Aggregate((x, y) => string.Format("{0}, {1}", x, y))
-                        : string.Empty
+                        : string.Empty,
+                inputs = !string.IsNullOrEmpty(element.InputParameters.FirstOrDefault().Item1)
+                        ? element.InputParameters.Where(s => s != null && s.Item1 != string.Empty).Select(s => s.Item1).Aggregate((x, y) => string.Format("{0},{1}", x, y))
+                        : string.Empty,
+                inputTypes = !string.IsNullOrEmpty(element.InputParameters.FirstOrDefault().Item1)
+                        ? element.InputParameters.Where(s => s != null && s.Item1 != string.Empty).Select(s => s.Item2).Aggregate((x, y) => string.Format("{0},{1}", x, y))
+                        : string.Empty,
+                outputs = !string.IsNullOrEmpty(element.OutputParameters.FirstOrDefault())
+                        ? element.OutputParameters.Where(s => !string.IsNullOrEmpty(s)).Aggregate((x, y) => string.Format("{0},{1}", x, y))
+                        : string.Empty,
+                smallIcon = pathToSmallIcon,
+                largeIcon = pathToLargeIcon,
             };
 
             //If this element is not a custom node then we are done. The icon url for custom node is different

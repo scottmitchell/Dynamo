@@ -22,7 +22,7 @@
     <script src='./dist/librarie.min.js'></script>
     
     <script>
-        console.log("stuff");
+        console.log("test1");
         //Get hold of object registered from C#
         let csharpController = window["controller"];
         //Check if the controller is null or one of our methods does not exist.
@@ -41,14 +41,15 @@
 
                 if (!loadedTypesJson || (!layoutSpecsJson)) {
                     console.log("Error: Couldn't get enough data to load library.");
-                    return; // Not fully downloaded yet, bail.
+                    return; // Not fully downloaded yet, bail.3
                 }
 
                 // Supply loaded types and layout specs at a much later time.
                 let append = false; // Replace existing contents instead of appending.
                 libraryController.setLoadedTypesJson(loadedTypesJson, append);
                 libraryController.setLayoutSpecsJson(layoutSpecsJson, append);
-                libraryController.refreshLibraryView(); // Refresh library view.
+                libraryController.refreshLibraryView(); // Refresh library view.lib
+                console.log("LibraryView refreshed");
             });
         }
 
@@ -60,6 +61,24 @@
             this.inDepth = inDepth;
             this.sorting = sorting;
         }
+
+        function nodeItem2(name, imageFile, dynFile, folderPath, inDepth, sorting, inputs, inputTypes, outputs, smallIcon, largeIcon, fullCategoryName, keywords, description) {
+            this.Name = name;
+            this.imageFile = imageFile;
+            this.dynFile = dynFile;
+            this.folderPath = folderPath;
+            this.inDepth = inDepth;
+            this.sorting = sorting;
+            this.inputs = inputs;
+            this.inputTypes = inputTypes;
+            this.outputs = outputs;
+            this.smallIcon = smallIcon;
+            this.largeIcon = largeIcon;
+            this.fullCategoryName = fullCategoryName;
+            this.keywords = keywords;
+            this.description = description;
+        }
+
 
         function compareStrings(a, b) {
             // Assuming you want case-insensitive comparison
@@ -91,6 +110,7 @@
         }
 
         function dictionaryDump(libraryController) {
+            console.log("Dumping dictionary");
             var jsonDump = [];
             //entire library output
             let generatedSections = libContainer.generatedSections[0].childItems;
@@ -113,7 +133,23 @@
                         } else {
                             params = "";
                         }
-                        var node = new nodeItem(subcategory.text + params, [subcategory.text + params], [subcategory.text + params], path + "/" + subcategory.itemType.charAt(0).toUpperCase() + subcategory.itemType.slice(1), "", path + createActionQuery(subcategory.itemType) + subcategory.text);
+                        var node = new nodeItem2(
+                            subcategory.text + params,
+                            [subcategory.text + params],
+                            [subcategory.text + params],
+                            path + "/" + subcategory.itemType.charAt(0).toUpperCase() + subcategory.itemType.slice(1),
+                            "",
+                            path + createActionQuery(subcategory.itemType) + subcategory.text,
+                            subcategory.inputs,
+                            subcategory.inputTypes,
+                            subcategory.outputs,
+                            subcategory.smallIcon,
+                            subcategory.largeIcon,
+                            subcategory.fullCategoryName,
+                            subcategory.keywords,
+                            subcategory.description
+                        );
+
                         jsonDump.push(node);
                     } else {
                         for (k = 0; k < subcategory.childItems.length; k++) {
@@ -125,7 +161,22 @@
                                 } else {
                                     params = "";
                                 }
-                                var node = new nodeItem(className.text + params, [className.text + params], [className.text + params], path + "/" + className.itemType.charAt(0).toUpperCase() + className.itemType.slice(1), "", (path + createActionQuery(className.itemType) + className.text).replace(/ /g, ''));
+                                var node = new nodeItem2(
+                                    className.text + params,
+                                    [className.text + params],
+                                    [className.text + params],
+                                    path + "/" + className.itemType.charAt(0).toUpperCase() + className.itemType.slice(1),
+                                    "",
+                                    (path + createActionQuery(className.itemType) + className.text).replace(/ /g, ''),
+                                    className.inputs,
+                                    className.inputTypes,
+                                    className.outputs,
+                                    className.smallIcon,
+                                    className.largeIcon,
+                                    className.fullCategoryName,
+                                    className.keywords,
+                                    className.description
+                                );
                                 jsonDump.push(node);
                             } else {
                                 for (l = 0; l < className.childItems.length; l++) {
@@ -137,8 +188,34 @@
                                         } else {
                                             params = "";
                                         }
-                                        var node = new nodeItem(lowLevel.text + params, [lowLevel.text + params], [lowLevel.text + params ], path + "/" + lowLevel.itemType.charAt(0).toUpperCase() + lowLevel.itemType.slice(1), "", (path + createActionQuery(lowLevel.itemType) + lowLevel.text).replace(/ /g, ''));
+                                        var node = new nodeItem2(
+                                            lowLevel.text + params,
+                                            [lowLevel.text + params],
+                                            [lowLevel.text + params],
+                                            path + "/" + lowLevel.itemType.charAt(0).toUpperCase() + lowLevel.itemType.slice(1),
+                                            "",
+                                            (path + createActionQuery(lowLevel.itemType) + lowLevel.text).replace(/ /g, ''),
+                                            lowLevel.inputs,
+                                            lowLevel.inputTypes,
+                                            lowLevel.outputs,
+                                            lowLevel.smallIcon,
+                                            lowLevel.largeIcon,
+                                            lowLevel.fullCategoryName,
+                                            lowLevel.keywords,
+                                            lowLevel.description
+                                        );
+
                                         jsonDump.push(node);
+                                        //lowLevel.expanded = true;
+                                        //console.log(lowLevel);
+                                        /*let sum = {
+                                            "LibraryContainer": libContainer,
+                                            "data": lowLevel,
+                                            "showDescription": true,
+                                        };
+                                        var summ = new ItemSummary(sum);
+                                        summ.fetchMissingItemSummary();
+                                        console.log(summ);*/
                                     }
                                 }
                             }
@@ -150,13 +227,14 @@
                 })
             }
             jsonDump.forEach(function (v) { delete v.sorting });
-            //console.log(jsonDump);
-            //download(JSON.stringify(jsonDump), 'C:/Users/williar/AppData/Local/Temp/json.txt', 'text/plain');
-            var result = loadJSON(function (json) {
+            console.log(jsonDump);
+            download(JSON.stringify(jsonDump), 'C:/Users/t_mitcs/AppData/Local/Temp/json.txt', 'text/plain');
+            /*var result = loadJSON(function (json) {
                 var jsonFinal = jsonMerge(jsonDump, json);
                 console.log(jsonFinal);
-                download(JSON.stringify(jsonDump), 'C:/Users/williar/AppData/Local/Temp/json.txt', 'text/plain');
-            });
+                download(JSON.stringify(jsonDump), 'C:/Users/t_mitcs/AppData/Local/Temp/json.txt', 'text/plain');
+            });*/
+            console.log("End of Dictionary Dump");
             
             
         }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Xml;
+using Dynamo;
 using Dynamo.Configuration;
 using Dynamo.Graph.Nodes;
 using Dynamo.Search.SearchElements;
@@ -65,6 +66,12 @@ namespace Dynamo.Search
             XmlHelper.AddNode(element, "Name", entry.Name);
             XmlHelper.AddNode(element, "Group", entry.Group.ToString());
             XmlHelper.AddNode(element, "Description", entry.Description);
+            if (entry.InputParameters != null)
+            {
+                XmlHelper.AddNode(element, "Input", entry.InputParameters.ToString());
+            }
+            
+            //XmlHelper.AddNode(element, "Output", ((string[])entry.OutputParameters).ToString());
 
             // Add search tags, joined by ",".
             // E.g. <SearchTags>bounding,bound,bymaxmin,max,min,bypoints</SearchTags>
@@ -214,5 +221,12 @@ namespace Dynamo.Search
 
             return category.Substring(0, index);
         }
+
+
+        /*internal string DumpLibraryToJSON()
+        {
+            var provider = new NodeItemDataProvider
+            return "";
+        }*/
     }
 }
