@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using Dynamo.Controls;
 using Dynamo.Extensions;
-using Dynamo.Logging;
 using Dynamo.Selection;
 using Dynamo.Utilities;
 using Dynamo.ViewModels;
@@ -22,20 +21,17 @@ namespace Dynamo.Wpf.Extensions
     {
         private readonly DynamoView dynamoView;
         private readonly DynamoViewModel dynamoViewModel;
+
+        /// <summary>
+        /// A reference to the Dynamo main menu control
+        /// </summary>
         public readonly Menu dynamoMenu;
-        private readonly ViewStartupParams viewStartupParams;
 
         /// <summary>
         /// A reference to the <see cref="ViewStartupParams"/> class.
         /// Useful if this extension will be loaded from a package, as its startup method will not be called.
         /// </summary>
-        public ViewStartupParams ViewStartupParams
-        {
-            get
-            {
-                return viewStartupParams;
-            }
-        }
+        public ViewStartupParams ViewStartupParams { get; }
 
         /// <summary>
         /// A reference to the background preview viewmodel for geometry selection,
@@ -59,20 +55,13 @@ namespace Dynamo.Wpf.Extensions
             get { return dynamoViewModel.PackageManagerClientViewModel; }
         }
 
+        private ViewModelCommandExecutive viewModelCommandExecutive;
         /// <summary>
-        /// A reference to the DynamoViewModel's delegate commands
+        /// Class used for executing commands on the DynamoViewModel and current WorkspaceViewModel
         /// </summary>
-        public IDynamoViewModelDelegateCommands DynamoViewModelDelegateCommands
+        public ViewModelCommandExecutive ViewModelCommandExecutive
         {
-            get { return dynamoViewModel; }
-        }
-
-        /// <summary>
-        /// A reference to Dynamo Logger for extension to use
-        /// </summary>
-        public DynamoLogger Logger
-        {
-            get { return dynamoViewModel.Model.Logger; }
+            get { return viewModelCommandExecutive ?? (viewModelCommandExecutive = new ViewModelCommandExecutive(dynamoViewModel)); }
         }
 
         /// <summary>
@@ -93,7 +82,7 @@ namespace Dynamo.Wpf.Extensions
             dynamoView = dynamoV;
             dynamoViewModel = dynamoVM;
             dynamoMenu = dynamoView.titleBar.ChildOfType<Menu>();
-            viewStartupParams = new ViewStartupParams(dynamoVM);
+            ViewStartupParams = new ViewStartupParams(dynamoVM);
             DynamoSelection.Instance.Selection.CollectionChanged += OnSelectionCollectionChanged;
         }
 
@@ -170,7 +159,7 @@ namespace Dynamo.Wpf.Extensions
         /// Searches for dynamo parent menu item. Parent item can be:
         /// file menu, edit menu, view menu and help menu bars.
         /// </summary>
-        /// <param name="menuBarType">File, Edit, View or Help.</param>
+        /// <param name="type">File, Edit, View or Help.</param>
         private MenuItem SearchForMenuItem(MenuBarType type)
         {
             var dynamoMenuItems = dynamoMenu.Items.OfType<MenuItem>();
